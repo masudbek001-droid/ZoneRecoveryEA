@@ -81,3 +81,9 @@ Use the saved best set for demo-safe forward validation; repeat the test with hi
 - Net profit: **736.79 USD**; profit factor: **2.18**; max equity drawdown: **2.62%**; recovery factor: **2.79**; total trades: **656**.
 - Preset: `presets/ZoneRecoveryEA_XAUUSD_M5_2026_best.set`.
 - This is a historical tester result, not a guarantee of live profitability; tick-model/OOS validation remains required before demo or live use.
+
+## Rolling every-closed-H1 zone test (2026 YTD)
+
+- Zone selection changed from the fixed 09:00 candle to every newly closed H1 candle; equity DD limit set to 50% for the experiment.
+- XAUUSD M5 with USD news filter: net profit **-68.45 USD**, profit factor **0.91**, max equity drawdown **5.00%**, 266 trades.
+- Result is not acceptable for deployment; parameter re-optimization is required for this materially different zone regime.

@@ -16,3 +16,4 @@
 - Enabled and verified the historical USD news filter for XAUUSD M5.
 - Standardized the exporter and EA filename to `NewsCalendar.csv`.
 - Added the XAUUSD M5 2026 preset and tester result.
+- Added experimental rolling-zone mode (`InpZoneHour=-1`) and tested every closed H1 candle with a 50% equity DD ceiling.

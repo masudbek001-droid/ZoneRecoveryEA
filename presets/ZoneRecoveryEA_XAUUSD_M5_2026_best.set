@@ -1,5 +1,5 @@
 InpZoneTimeframe=16385
-InpZoneHour=9
+InpZoneHour=-1
 InpZoneMinute=0
 InpEntryTimeframe=5
 InpBreakoutMode=1
@@ -21,7 +21,7 @@ InpMaxAllowedLot=1
 InpMaxCycleTrades=10
 InpMaxCycleLossMoney=500
 InpMaxDailyLossMoney=1000
-InpMaxEquityDrawdownPercent=20
+InpMaxEquityDrawdownPercent=50
 InpMaxMarginUsagePercent=50
 InpMaxSpreadPips=5
 InpMaxSlippagePoints=30
