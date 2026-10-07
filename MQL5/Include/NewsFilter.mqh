@@ -361,7 +361,7 @@ public:
    //+------------------------------------------------------------------+
    bool IsTester()
    {
-      return MQLInfoInteger(MQL_TESTER) || MQLInfoInteger(MQL_OPTIMIZER);
+      return (bool)MQLInfoInteger(MQL_TESTER);
    }
    
    //+------------------------------------------------------------------+

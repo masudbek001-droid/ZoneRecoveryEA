@@ -25,7 +25,7 @@ private:
    //+------------------------------------------------------------------+
    bool CheckSpread()
    {
-      double spread = SymbolInfoInteger(m_symbol, SYMBOL_SPREAD);
+      double spread = (double)SymbolInfoInteger(m_symbol, SYMBOL_SPREAD);
       double point  = GetPointSize(m_symbol);
       double spreadPips = (spread * point) / GetPipSizeForSymbol(m_symbol);
       

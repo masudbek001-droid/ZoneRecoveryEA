@@ -177,7 +177,7 @@ public:
    //+------------------------------------------------------------------+
    bool IsZoneFormed() const { return m_zoneFormed; }
    
-   const ZoneData& GetZone() const { return m_currentZone; }
+   ZoneData GetZone() const { return m_currentZone; }
    
    double GetZoneHigh() const { return m_currentZone.ZoneHigh; }
    double GetZoneLow() const  { return m_currentZone.ZoneLow; }
@@ -186,7 +186,7 @@ public:
    ulong  GetZoneID() const   { return m_currentZone.ZoneID; }
    datetime GetZoneTime() const { return m_currentZone.ZoneTime; }
    
-   const ZoneData& GetPreviousZone() const { return m_previousZone; }
+   ZoneData GetPreviousZone() const { return m_previousZone; }
    bool HasPreviousZone() const { return m_previousZone.IsValid; }
    
    ENUM_TIMEFRAMES GetTimeframe() const { return m_zoneTimeframe; }

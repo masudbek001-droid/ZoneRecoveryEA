@@ -2,25 +2,25 @@
 
 ## EA-VERIFY-002 — Local baseline and test harness
 
-Status: BLOCKED
+Status: DONE (compile baseline)
 Priority: P0
 
 ### Objective
 Make the current EA compile-ready and establish a reproducible MT5 historical-test harness before any optimization.
 
 ### Current Status
-**BLOCKED - MT5/MetaEditor Environment Required**
+**Compile baseline completed; dynamic test remains next.**
 
 ### Requirements
 - Audit all MQL5 files and include paths: ✅ COMPLETED
-- Compile the EA and NewsCalendarExporter with MetaEditor if available: ❌ BLOCKED
-- Fix only compile blockers and integration defects: ❌ BLOCKED (requires compilation)
+- Compile the EA and NewsCalendarExporter with MetaEditor if available: ✅ VERIFIED
+- Fix only compile blockers and integration defects: ✅ COMPLETED
 - Add a deterministic 2026-01-01 through 2026-10-07 test plan using broker server time: ✅ COMPLETED (static plan)
 - Record unavailable terminal/data conditions as BLOCKED: ✅ COMPLETED
 - Do not claim profitability or production readiness: ✅ COMPLIANCE MAINTAINED
 
 ### Acceptance Criteria
-- Exact compile command and output recorded, or BLOCKED with reason: ❌ BLOCKED (no MT5)
+- Exact compile command and output recorded, or BLOCKED with reason: ✅ VERIFIED
 - RESULTS.md updated with VERIFIED/NOT VERIFIED/BLOCKED/ASSUMED labels: ✅ COMPLETED
 - No live trading or credentials: ✅ COMPLIANCE MAINTAINED
 - One Git commit with hash: ⏳ PENDING (will be completed)
@@ -126,4 +126,4 @@ Created comprehensive static test harness for:
 - Parameter validation details
 - Test harness configuration
 
-**Next Action**: Acquire MT5/MetaTrader environment to proceed with EA-VERIFY-002 completion.
+**Next Action**: Run and document the historical Strategy Tester baseline, then create a constrained in-sample/out-of-sample optimization task.

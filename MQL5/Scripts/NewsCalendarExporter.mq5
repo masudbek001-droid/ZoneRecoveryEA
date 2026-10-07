@@ -223,7 +223,7 @@ bool ExportChunk(int fileHandle, datetime from, datetime to, string exportTimest
       switch(event.importance)
       {
          case CALENDAR_IMPORTANCE_LOW:      importanceStr = "LOW"; break;
-         case CALENDAR_IMPORTANCE_NORMAL:   importanceStr = "NORMAL"; break;
+         case CALENDAR_IMPORTANCE_MODERATE: importanceStr = "MODERATE"; break;
          case CALENDAR_IMPORTANCE_HIGH:     importanceStr = "HIGH"; break;
          default:                           importanceStr = "UNKNOWN"; break;
       }
@@ -247,7 +247,7 @@ bool ExportChunk(int fileHandle, datetime from, datetime to, string exportTimest
       // Write CSV row
       FileWrite(fileHandle,
                 IntegerToString(values[i].event_id),
-                IntegerToString(values[i].value_id > 0 ? values[i].value_id : i),
+                IntegerToString((long)(values[i].id > 0 ? values[i].id : (ulong)i)),
                 event.name,
                 currency,
                 importanceStr,
@@ -348,19 +348,19 @@ string CalculateFileChecksum()
    
    uint hash = 0;
    uchar buffer[];
-   int bytesRead;
+   uint bytesRead;
    
    while(!FileIsEnding(fileHandle))
    {
       bytesRead = FileReadArray(fileHandle, buffer, 0, 4096);
-      if(bytesRead <= 0) break;
+      if(bytesRead == 0) break;
       
-      for(int i = 0; i < bytesRead; i++)
+      for(uint i = 0; i < bytesRead; i++)
       {
          hash ^= (uint)buffer[i];
          for(int j = 0; j < 8; j++)
          {
-            if(hash & 1)
+         if((hash & 1) != 0)
                hash = (hash >> 1) ^ 0xEDB88320;
             else
                hash >>= 1;

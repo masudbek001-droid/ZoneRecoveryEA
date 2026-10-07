@@ -43,7 +43,9 @@ private:
    bool IsTradingDay()
    {
       datetime now = TimeCurrent();
-      int dow = TimeDayOfWeek(now);
+      MqlDateTime nowStruct;
+      TimeToStruct(now, nowStruct);
+      int dow = nowStruct.day_of_week;
       return (dow >= 1 && dow <= 5);  // Monday to Friday
    }
 

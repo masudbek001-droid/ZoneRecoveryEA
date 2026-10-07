@@ -3,8 +3,8 @@
 ## Current status
 
 - Overall: IN PROGRESS
-- Compilation: BLOCKED
-- Strategy Tester: BLOCKED
+- Compilation: VERIFIED
+- Strategy Tester: NOT RUN
 - Optimization: NOT STARTED
 - Live trading: FORBIDDEN
 
@@ -16,16 +16,21 @@
 - All include paths and dependencies documented.
 - Static test harness plan created for 2026-01-01 through 2026-10-07 period.
 
+### VERIFIED
+- MetaEditor64 path: `C:\Users\16-2-5\AppData\Roaming\MetaTrader 5\metaeditor64.exe`.
+- EA compile command: `/compile:C:\Users\16-2-5\Documents\Маъруза\ZoneRecoveryEA\MQL5\Experts\ZoneRecoveryEA.mq5 /log`.
+- EA result: `0 errors, 0 warnings`.
+- Script compile command: `/compile:C:\Users\16-2-5\Documents\Маъруза\ZoneRecoveryEA\MQL5\Scripts\NewsCalendarExporter.mq5 /log`.
+- Script result: `0 errors, 0 warnings`.
+- Generated artifacts: `MQL5/Experts/ZoneRecoveryEA.ex5`, `MQL5/Scripts/NewsCalendarExporter.ex5`.
+
 ### NOT VERIFIED
-- MetaEditor compilation.
 - Strategy Tester execution.
 - Historical news export.
 - Profitability and robustness.
 
 ### BLOCKED
-- **Exact MT5 terminal path not found**: System search failed to locate MetaTrader 5 installation
-- **MetaEditor executable unavailable**: No MetaEditor found in PATH or common installation directories
-- **MQL5 compiler not available**: No mql5compiler or equivalent tools detected
+- Strategy Tester and calendar export require active MT5 data/account context and a confirmed test symbol/data range.
 - **Live news data source unavailable**: NewsCalendarExporter requires internet-connected MT5 terminal
 - **Historical test data not accessible**: Cannot generate economic calendar data without live MT5
 
@@ -51,7 +56,7 @@ Created comprehensive test plan covering:
 5. Data persistence and statistics accuracy verification
 
 ### Next action
-**REQUIRES MT5 ENVIRONMENT**: To proceed with EA-VERIFY-002, MT5/MetaEditor must be installed and accessible. Current environment blocking compilation and dynamic testing.
+Run a historical Strategy Tester baseline with explicit symbol, broker server time, spread, commission, deposit and leverage, then optimize only after an untouched validation split.
 
 ### Environment Discovery Required
 - Locate MT4/MT5 installation path

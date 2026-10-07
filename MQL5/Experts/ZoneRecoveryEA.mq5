@@ -8,20 +8,20 @@
 #property description "Professional Zone Recovery EA with News Filter"
 #property strict
 
-#include "Include\CommonDefines.mqh"
-#include "Include\ZoneManager.mqh"
-#include "Include\SignalEngine.mqh"
-#include "Include\TradeManager.mqh"
-#include "Include\StopLossManager.mqh"
-#include "Include\RecoveryManager.mqh"
-#include "Include\ReentryManager.mqh"
-#include "Include\PositionLockManager.mqh"
-#include "Include\DailySessionManager.mqh"
-#include "Include\NewsFilter.mqh"
-#include "Include\RiskManager.mqh"
-#include "Include\StateManager.mqh"
-#include "Include\VisualManager.mqh"
-#include "Include\StatisticsManager.mqh"
+#include "..\Include\CommonDefines.mqh"
+#include "..\Include\ZoneManager.mqh"
+#include "..\Include\SignalEngine.mqh"
+#include "..\Include\TradeManager.mqh"
+#include "..\Include\StopLossManager.mqh"
+#include "..\Include\RecoveryManager.mqh"
+#include "..\Include\ReentryManager.mqh"
+#include "..\Include\PositionLockManager.mqh"
+#include "..\Include\DailySessionManager.mqh"
+#include "..\Include\NewsFilter.mqh"
+#include "..\Include\RiskManager.mqh"
+#include "..\Include\StateManager.mqh"
+#include "..\Include\VisualManager.mqh"
+#include "..\Include\StatisticsManager.mqh"
 
 //+------------------------------------------------------------------+
 //| Input Parameters                                                  |
@@ -504,7 +504,7 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
                // recorded by the state machine before the close request.
                
                // Get position ID from the transaction
-               ulong closedPositionID = trans.position_id;
+               ulong closedPositionID = trans.position;
                
                // Unlock position if it matches our lock
                ulong lockedTicket = g_posLockManager.GetLockedTicket();

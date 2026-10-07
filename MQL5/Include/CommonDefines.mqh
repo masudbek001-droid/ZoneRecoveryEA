@@ -348,14 +348,16 @@ datetime GetNextDayStart(datetime dt)
 bool IsMarketOpen(string symbol)
 {
    datetime now = TimeCurrent();
-   int dayOfWeek = TimeDayOfWeek(now);
+   MqlDateTime nowStruct;
+   TimeToStruct(now, nowStruct);
+   int dayOfWeek = nowStruct.day_of_week;
    
    // Try to find any trade session for today
    // There may be multiple sessions per day (e.g. Asian + European)
    for(uint sessionIndex = 0; sessionIndex < 10; sessionIndex++)
    {
       datetime from = 0, to = 0;
-      if(!SymbolInfoSessionTrade(symbol, (ENUM_SESSION_DAY_OF_WEEK)dayOfWeek, sessionIndex, from, to))
+      if(!SymbolInfoSessionTrade(symbol, (ENUM_DAY_OF_WEEK)dayOfWeek, sessionIndex, from, to))
          break;  // No more sessions
       
       // Convert session times to seconds-since-midnight
