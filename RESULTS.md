@@ -74,3 +74,10 @@ Use the saved best set for demo-safe forward validation; repeat the test with hi
 - Verify MQL5 compiler availability
 - Test NewsCalendarExporter with live terminal
 - Establish test data generation workflow
+## XAUUSD M5 with USD news filter (2026 YTD)
+
+- Test period: 2026-01-01 through 2026-10-07; XAUUSD, M5; 1-minute OHLC model.
+- News filter: enabled; `NewsCalendar.csv` loaded 137 USD high-impact blocked days.
+- Net profit: **736.79 USD**; profit factor: **2.18**; max equity drawdown: **2.62%**; recovery factor: **2.79**; total trades: **656**.
+- Preset: `presets/ZoneRecoveryEA_XAUUSD_M5_2026_best.set`.
+- This is a historical tester result, not a guarantee of live profitability; tick-model/OOS validation remains required before demo or live use.

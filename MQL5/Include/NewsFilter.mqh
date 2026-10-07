@@ -130,11 +130,13 @@ private:
          if(!currencyMatch) continue;
          
          // Parse event time
-         datetime eventTime = StringToTime(brokerDate);
+         // Prefer the full timestamp.  Some MT5 builds do not parse a
+         // date-only CSV field consistently inside the tester sandbox.
+         datetime eventTime = StringToTime(eventTimeStr);
          if(eventTime == 0)
             eventTime = StringToTime(brokerTime);
          if(eventTime == 0)
-            eventTime = StringToTime(eventTimeStr);
+            eventTime = StringToTime(brokerDate);
          
          if(eventTime == 0) continue;
          

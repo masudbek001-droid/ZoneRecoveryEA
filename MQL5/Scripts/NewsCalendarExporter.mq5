@@ -12,9 +12,9 @@
 //+------------------------------------------------------------------+
 //| Input Parameters                                                  |
 //+------------------------------------------------------------------+
-input datetime         InpExportStartDate   = D'2024.01.01';    // Export Start Date
-input datetime         InpExportEndDate     = D'2026.12.31';    // Export End Date
-input string           InpExportCurrencies  = "USD,EUR,GBP,JPY,AUD,CAD,CHF,NZD"; // Export Currencies
+input datetime         InpExportStartDate   = D'2026.01.01';    // Export Start Date
+input datetime         InpExportEndDate     = D'2026.10.07';    // Export End Date
+input string           InpExportCurrencies  = "USD";            // Export Currencies
 input bool             InpExportHighImpactOnly = true;          // Export High Impact Only
 input string           InpExportFilename    = "NewsCalendar.csv"; // Export Filename
 input int              InpChunkDays         = 30;               // Export Chunk Size (days)
@@ -94,6 +94,10 @@ void OnStart()
       Print("CSV file may be incomplete. Do not use for backtesting.");
       g_exportSuccess = false;
    }
+
+   // Allow deterministic headless execution from a startup config.
+   if((bool)MQLInfoInteger(MQL_STARTED_FROM_CONFIG))
+      TerminalClose(g_exportSuccess ? 0 : 1);
 }
 
 //+------------------------------------------------------------------+

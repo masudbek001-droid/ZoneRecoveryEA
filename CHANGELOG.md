@@ -11,3 +11,8 @@
 - Recompiled EA and exporter with 0 errors and 0 warnings.
 - Completed baseline, 25-pass optimization, IS/OOS validation, and all-ticks OOS stress validation.
 - Completed stage-2 81-pass recovery/re-entry optimization and final all-ticks OOS validation.
+## 2026-10-07
+
+- Enabled and verified the historical USD news filter for XAUUSD M5.
+- Standardized the exporter and EA filename to `NewsCalendar.csv`.
+- Added the XAUUSD M5 2026 preset and tester result.
