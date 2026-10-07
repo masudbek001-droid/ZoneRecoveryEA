@@ -126,4 +126,4 @@ Created comprehensive static test harness for:
 - Parameter validation details
 - Test harness configuration
 
-**Next Action**: Run and document the historical Strategy Tester baseline, then create a constrained in-sample/out-of-sample optimization task.
+**Next Action**: Run and document the historical Strategy Tester baseline using the corrected recovery accounting, then create a constrained in-sample/out-of-sample optimization task.

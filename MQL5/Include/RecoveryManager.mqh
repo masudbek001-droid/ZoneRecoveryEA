@@ -204,11 +204,13 @@ public:
       m_tradeNumber++;
       m_totalCyclePnL += profit;
       
-      // If profit covers all losses and target, cycle is complete
-      if(m_totalCyclePnL >= m_unrecoveredLoss)
-      {
-         m_unrecoveredLoss = 0;
-      }
+      // A profitable close pays down the accumulated cycle loss first.
+      // The previous implementation compared total cycle PnL with the
+      // unrecovered loss but never reduced the loss by the TP profit,
+      // which could make recovery state inconsistent.
+      m_unrecoveredLoss -= MathMax(0.0, profit);
+      if(m_unrecoveredLoss < 0.0)
+         m_unrecoveredLoss = 0.0;
       
       PrintFormat("[RecoveryManager] TP recorded: Profit=%.2f TotalPnL=%.2f Trade#=%d",
                   profit, m_totalCyclePnL, m_tradeNumber);
@@ -219,9 +221,11 @@ public:
    //+------------------------------------------------------------------+
    void RecordSLLoss(double loss, double lot)
    {
-      m_totalCyclePnL -= loss;  // Loss is positive number, subtract
+      double positiveLoss = MathMax(0.0, loss);
+      m_totalCyclePnL -= positiveLoss;
+      m_unrecoveredLoss += positiveLoss;
       PrintFormat("[RecoveryManager] SL recorded: Loss=%.2f TotalPnL=%.2f UnrecoveredLoss=%.2f Trade#=%d",
-                  loss, m_totalCyclePnL, m_unrecoveredLoss, m_tradeNumber);
+                  positiveLoss, m_totalCyclePnL, m_unrecoveredLoss, m_tradeNumber);
    }
    
    //+------------------------------------------------------------------+

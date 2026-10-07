@@ -182,6 +182,27 @@ int OnInit()
       Print("ERROR: TakeProfitPips must be > 0");
       return INIT_PARAMETERS_INCORRECT;
    }
+   if(InpBreakoutMode == BREAKOUT_MODE_PERCENT &&
+      (InpMaxBreakoutPercent <= 0 || InpMaxBreakoutPercent > 100))
+   {
+      Print("ERROR: MaxBreakoutPercent must be > 0 and <= 100");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpBreakoutMode == BREAKOUT_MODE_FIXED && InpMaxBreakoutPips <= 0)
+   {
+      Print("ERROR: MaxBreakoutPips must be > 0 in FIXED breakout mode");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpTouchTolerancePips < 0 || InpMaxTouchOvershootPips < InpTouchTolerancePips)
+   {
+      Print("ERROR: Touch overshoot must be >= touch tolerance and both must be non-negative");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpCycleProfitMode == CYCLE_PROFIT_FIXED && InpFixedCycleProfit <= 0)
+   {
+      Print("ERROR: FixedCycleProfit must be > 0 in FIXED cycle-profit mode");
+      return INIT_PARAMETERS_INCORRECT;
+   }
    if(InpMaxCycleTrades < 1 || InpMaxCycleTrades > MAX_CYCLE_TRADES_HARD_LIMIT)
    {
       PrintFormat("ERROR: MaxCycleTrades must be between 1 and %d", MAX_CYCLE_TRADES_HARD_LIMIT);

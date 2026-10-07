@@ -24,6 +24,11 @@
 - Script result: `0 errors, 0 warnings`.
 - Generated artifacts: `MQL5/Experts/ZoneRecoveryEA.ex5`, `MQL5/Scripts/NewsCalendarExporter.ex5`.
 
+### VERIFIED
+- Source audit found and fixed recovery-state accounting defect: SL losses now increase `unrecoveredLoss`, and TP profit reduces it with a zero floor.
+- Added optimizer-safe input validation for breakout, touch, and fixed cycle-profit settings.
+- MetaEditor compile after fixes: EA `0 errors, 0 warnings`; NewsCalendarExporter `0 errors, 0 warnings`.
+
 ### NOT VERIFIED
 - Strategy Tester execution.
 - Historical news export.
