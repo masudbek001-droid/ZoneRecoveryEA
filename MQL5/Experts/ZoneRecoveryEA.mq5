@@ -30,7 +30,7 @@
 //--- Zone Settings
 input group "=== ZONE SETTINGS ==="
 input ENUM_TIMEFRAMES  InpZoneTimeframe       = PERIOD_H1;       // Zone Timeframe
-input int              InpZoneHour            = -1;              // Every closed zone candle (-1) or fixed broker hour
+input int              InpZoneHour            = 9;               // Zone Candle Open Hour (broker time)
 input int              InpZoneMinute          = 0;               // Zone Candle Open Minute
 
 //--- Entry Settings
@@ -76,7 +76,7 @@ input double           InpMaxAllowedLot       = 1.0;             // Maximum Allo
 input int              InpMaxCycleTrades      = 10;              // Maximum Trades per Cycle
 input double           InpMaxCycleLossMoney   = 500.0;           // Maximum Cycle Loss ($)
 input double           InpMaxDailyLossMoney   = 1000.0;          // Maximum Daily Loss ($)
-input double           InpMaxEquityDrawdownPercent = 50.0;       // Maximum Equity Drawdown (%)
+input double           InpMaxEquityDrawdownPercent = 20.0;       // Maximum Equity Drawdown (%)
 input double           InpMaxMarginUsagePercent = 50.0;          // Maximum Margin Usage (%)
 input double           InpMaxSpreadPips       = 5.0;             // Maximum Spread (pips)
 input double           InpMaxSlippagePoints   = 30.0;            // Maximum Slippage (points)
@@ -151,7 +151,7 @@ int OnInit()
    //--- Input validation: reject invalid configurations
    //    Returns INIT_PARAMETERS_INCORRECT to prevent optimizer from testing these
    
-   if(InpZoneHour < -1 || InpZoneHour > 23 || InpZoneMinute < 0 || InpZoneMinute > 59)
+   if(InpZoneHour < 0 || InpZoneHour > 23 || InpZoneMinute < 0 || InpZoneMinute > 59)
    {
       Print("ERROR: Invalid ZoneHour/ZoneMinute values");
       return INIT_PARAMETERS_INCORRECT;

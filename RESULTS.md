@@ -87,3 +87,10 @@ Use the saved best set for demo-safe forward validation; repeat the test with hi
 - Zone selection changed from the fixed 09:00 candle to every newly closed H1 candle; equity DD limit set to 50% for the experiment.
 - XAUUSD M5 with USD news filter: net profit **-68.45 USD**, profit factor **0.91**, max equity drawdown **5.00%**, 266 trades.
 - Result is not acceptable for deployment; parameter re-optimization is required for this materially different zone regime.
+
+## H1 zone-hour comparison: XAUUSD M5 (2026 YTD)
+
+- Method: 24 separate `InpZoneHour` passes (00:00–23:00), first with news filter ON and then OFF.
+- News ON best: **09:00**, net **+736.79 USD**, PF **2.18**, equity DD **2.62%**, 656 trades.
+- News OFF best observed: **18:00**, net **+321.28 USD**, PF **1.44**, equity DD **3.49%**, 751 trades.
+- The ON/OFF comparison indicates the news filter materially improved the best configuration in this historical sample. Full pass tables are stored in the optimization XML artifacts.

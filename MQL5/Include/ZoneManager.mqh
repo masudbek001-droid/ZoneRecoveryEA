@@ -30,9 +30,7 @@ private:
    bool FindZoneCandle(datetime &candleOpenTime, datetime &candleCloseTime, 
                         double &high, double &low)
    {
-      // In rolling mode the zone is the most recently closed candle on the
-      // configured timeframe. The legacy hour/minute fallback remains for
-      // time-anchored configurations.
+      // The zone is the H1 candle opened at the configured broker hour.
       datetime now = TimeCurrent();
       MqlDateTime nowDT;
       TimeToStruct(now, nowDT);
@@ -51,16 +49,6 @@ private:
       int bars = iBars(m_symbol, m_zoneTimeframe);
       if(bars < 2) return false;
 
-      // Every closed H1 candle is eligible: bar 1 is the latest fully closed
-      // candle and bar 0 is still forming.
-      if(m_zoneHour < 0)
-      {
-         candleOpenTime  = iTime(m_symbol, m_zoneTimeframe, 1);
-         candleCloseTime = iTime(m_symbol, m_zoneTimeframe, 0);
-         high = iHigh(m_symbol, m_zoneTimeframe, 1);
-         low  = iLow(m_symbol, m_zoneTimeframe, 1);
-         return candleOpenTime > 0 && candleCloseTime > candleOpenTime;
-      }
       
       // Scan through bars to find the one that opens at target time
       // We check bars from most recent going backwards
@@ -138,12 +126,7 @@ public:
    //+------------------------------------------------------------------+
    bool Update()
    {
-      if(m_zoneFormed)
-      {
-         if(m_zoneHour >= 0) return true; // legacy daily zone
-         datetime latestClosed = iTime(m_symbol, m_zoneTimeframe, 1);
-         if(latestClosed == m_currentZone.ZoneTime) return true;
-      }
+      if(m_zoneFormed) return true;  // Zone already formed for today
       
       // Try to find the zone candle
       datetime candleOpen, candleClose;
