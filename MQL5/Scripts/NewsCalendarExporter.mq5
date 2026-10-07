@@ -288,7 +288,9 @@ void WriteManifestFile()
    // Get broker info
    string brokerName = AccountInfoString(ACCOUNT_COMPANY);
    string serverName = AccountInfoString(ACCOUNT_SERVER);
-   int    utcOffset  = (int)AccountInfoInteger(ACCOUNT_TRADE_ALLOWED);
+   
+   // Note: UTC offset cannot be determined programmatically from MT5 API alone.
+   // All times in the export are in broker server timezone.
    
    // Calculate checksum (simple hash of the CSV)
    string checksum = CalculateFileChecksum();

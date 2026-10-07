@@ -60,19 +60,20 @@ private:
          }
       }
       
-      // Skip header
+      // Skip header line - read all fields until end of line
       if(!FileIsEnding(fileHandle))
       {
-         // Read and discard header line
-         string header = "";
-         for(int i = 0; i < 12; i++)  // 12 columns
+         // Read and discard header fields
+         string headerField = "";
+         int headerFieldsRead = 0;
+         while(!FileIsLineEnding(fileHandle) && !FileIsEnding(fileHandle))
          {
-            if(!FileIsEnding(fileHandle))
-               header = FileReadString(fileHandle);
+            headerField = FileReadString(fileHandle);
+            headerFieldsRead++;
+            if(headerFieldsRead > 20) break;  // Safety limit
          }
-         // Skip to next line
-         if(!FileIsEnding(fileHandle))
-            FileReadString(fileHandle);
+         // If we stopped at a line ending (not file end), the FileReadString
+         // in the next iteration will start on the data line
       }
       
       // Read data rows

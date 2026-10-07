@@ -98,7 +98,6 @@ public:
       
       m_trade.SetExpertMagicNumber(magic);
       m_trade.SetDeviationInPoints((ulong)maxSlippagePoints);
-      m_trade.SetMarginMode();
       m_trade.LogLevel(LOG_LEVEL_ERRORS);
    }
    

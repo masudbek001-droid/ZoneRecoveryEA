@@ -470,3 +470,57 @@ This software is provided as-is for educational and trading purposes.
 ## 🔗 Support
 
 For issues, questions, or contributions, please refer to the project repository.
+
+---
+
+## 📂 Deployment & Folder Structure
+
+### Required Placement in MT5
+
+Copy files to your MT5 Data Folder (open via File → Open Data Folder):
+
+```
+<MT5 Data Folder>\
+└── MQL5\
+    ├── Experts\
+    │   └── ZoneRecoveryEA.mq5
+    ├── Include\
+    │   ├── CommonDefines.mqh
+    │   ├── DailySessionManager.mqh
+    │   ├── NewsFilter.mqh
+    │   ├── PositionLockManager.mqh
+    │   ├── RecoveryManager.mqh
+    │   ├── ReentryManager.mqh
+    │   ├── RiskManager.mqh
+    │   ├── SignalEngine.mqh
+    │   ├── StateManager.mqh
+    │   ├── StatisticsManager.mqh
+    │   ├── StopLossManager.mqh
+    │   ├── TradeManager.mqh
+    │   ├── VisualManager.mqh
+    │   └── ZoneManager.mqh
+    └── Scripts\
+        └── NewsCalendarExporter.mq5
+```
+
+### Compilation Steps
+
+1. Open MetaEditor (F4 from MT5 terminal)
+2. Navigate to `MQL5\Experts\ZoneRecoveryEA.mq5`
+3. Press **F7** (Compile)
+4. Check the Errors tab — must show **0 errors**
+5. The compiled `ZoneRecoveryEA.ex5` will appear in the same folder
+
+### News Calendar Export (for backtesting)
+
+1. In MT5 terminal, open Navigator (Ctrl+N)
+2. Scripts → `NewsCalendarExporter`
+3. Drag onto any chart
+4. Configure parameters and run
+5. Output: `NewsCalendar.csv` and `NewsCalendar_manifest.txt` in `MQL5\Files\`
+
+### ⚠️ Compilation & Test Status
+
+**IMPORTANT:** As of this version, the code has undergone static analysis against MQL5 API documentation but has **NOT been compiled or tested** in MetaEditor. See `RESULTS.md` and `TASKS.md` for detailed audit results and blockers.
+
+7 compile-blocking issues were identified and fixed during audit. Remaining issues can only be discovered through actual compilation.

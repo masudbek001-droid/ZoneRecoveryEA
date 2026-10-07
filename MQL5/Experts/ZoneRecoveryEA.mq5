@@ -133,6 +133,10 @@ ulong                g_lastTradeTransactionID = 0;
 ZoneData             g_currentZone;
 CycleData            g_currentCycle;
 
+//--- Prevents double-counting in OnTradeTransaction when stats already
+//    recorded by ForceCloseAllPositions or ProcessSLClosePending
+bool                 g_tradeStatsRecorded = false;
+
 //+------------------------------------------------------------------+
 //| Expert initialization function                                     |
 //+------------------------------------------------------------------+
@@ -142,6 +146,91 @@ int OnInit()
    g_currentState = STATE_WAIT_ZONE;
    g_lastSignal   = SIGNAL_NONE;
    g_positionJustClosed = false;
+   g_tradeStatsRecorded = false;
+   
+   //--- Input validation: reject invalid configurations
+   //    Returns INIT_PARAMETERS_INCORRECT to prevent optimizer from testing these
+   
+   if(InpZoneHour < 0 || InpZoneHour > 23 || InpZoneMinute < 0 || InpZoneMinute > 59)
+   {
+      Print("ERROR: Invalid ZoneHour/ZoneMinute values");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpCloseHour < 0 || InpCloseHour > 23 || InpCloseMinute < 0 || InpCloseMinute > 59)
+   {
+      Print("ERROR: Invalid CloseHour/CloseMinute values");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpInitialLot <= 0)
+   {
+      Print("ERROR: InitialLot must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxAllowedLot < InpInitialLot)
+   {
+      Print("ERROR: MaxAllowedLot must be >= InitialLot");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxAllowedLot > SymbolInfoDouble(g_symbol, SYMBOL_VOLUME_MAX))
+   {
+      // Clamp to broker max - don't reject, just warn
+      PrintFormat("WARNING: MaxAllowedLot %.2f clamped to broker max %.2f",
+                  InpMaxAllowedLot, SymbolInfoDouble(g_symbol, SYMBOL_VOLUME_MAX));
+   }
+   if(InpTakeProfitPips <= 0)
+   {
+      Print("ERROR: TakeProfitPips must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxCycleTrades < 1 || InpMaxCycleTrades > MAX_CYCLE_TRADES_HARD_LIMIT)
+   {
+      PrintFormat("ERROR: MaxCycleTrades must be between 1 and %d", MAX_CYCLE_TRADES_HARD_LIMIT);
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxCycleLossMoney <= 0)
+   {
+      Print("ERROR: MaxCycleLossMoney must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxDailyLossMoney <= 0)
+   {
+      Print("ERROR: MaxDailyLossMoney must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxDailyLossMoney < InpMaxCycleLossMoney)
+   {
+      Print("ERROR: MaxDailyLossMoney must be >= MaxCycleLossMoney");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxEquityDrawdownPercent <= 0 || InpMaxEquityDrawdownPercent > 100)
+   {
+      Print("ERROR: MaxEquityDrawdownPercent must be > 0 and <= 100");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxMarginUsagePercent <= 0 || InpMaxMarginUsagePercent > 100)
+   {
+      Print("ERROR: MaxMarginUsagePercent must be > 0 and <= 100");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpRecoveryOnlyFromTrade < 2)
+   {
+      Print("ERROR: RecoveryOnlyFromTrade must be >= 2");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpMaxSpreadPips <= 0)
+   {
+      Print("ERROR: MaxSpreadPips must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   
+   //--- Close time must be after zone formation time
+   int zoneMinutes = InpZoneHour * 60 + InpZoneMinute;
+   int closeMinutes = InpCloseHour * 60 + InpCloseMinute;
+   if(closeMinutes <= zoneMinutes)
+   {
+      Print("ERROR: Close time must be after zone formation time");
+      return INIT_PARAMETERS_INCORRECT;
+   }
    
    // Initialize all modules
    g_zoneManager.Init(g_symbol, InpZoneTimeframe, InpZoneHour, InpZoneMinute);
@@ -375,11 +464,20 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
                double netProfit = profit + commission + swap;
                double volume = HistoryDealGetDouble(historyDealTicket, DEAL_VOLUME);
                
-               string closeReason = DetermineCloseReason(historyDealTicket);
+               string closeReason = DetermineCloseReason(historyDealTicket, g_currentState);
                
-               g_statsManager.RecordTrade(netProfit, volume,
-                  closeReason == "TP", closeReason == "SL",
-                  closeReason == "DAY_END", closeReason == "NEWS_CLOSE");
+               // Only record trade stats here for non-forced closes.
+               // Forced closes (DAY_END, NEWS_CLOSE, RISK_HALT) are recorded by 
+               // ForceCloseAllPositions() BEFORE the close request.
+               bool isForcedClose = (closeReason == "DAY_END" || closeReason == "NEWS_CLOSE" || closeReason == "RISK_HALT");
+               if(!isForcedClose && !g_tradeStatsRecorded)
+               {
+                  g_statsManager.RecordTrade(netProfit, volume,
+                     closeReason == "TP", closeReason == "SL",
+                     false, false);
+               }
+               // Reset the flag after processing
+               g_tradeStatsRecorded = false;
                
                // Log trade
                TradeRecord record;
@@ -400,12 +498,21 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
                g_stateManager.LogTrade(record);
                
                // Note: Recovery state (RecordSLLoss / RecordTPProfit) is handled
-               // by the state machine (ProcessSLClosePending, ProcessInPosition)
-               // Do NOT update recovery here to avoid double-counting.
+               // by the state machine (ProcessSLClosePending) for SL closes.
+               // For TP closes handled here, we do record the profit.
+               // For forced closes (DAY_END, NEWS_CLOSE, RISK_HALT), stats are
+               // recorded by the state machine before the close request.
                
-               // Unlock position if it was locked
-               if(g_posLockManager.GetLockedTicket() == ticket ||
-                  g_posLockManager.GetLockedTicket() == 0)
+               // Get position ID from the transaction
+               ulong closedPositionID = trans.position_id;
+               
+               // Unlock position if it matches our lock
+               ulong lockedTicket = g_posLockManager.GetLockedTicket();
+               if(lockedTicket > 0 && (lockedTicket == closedPositionID || lockedTicket == 0))
+               {
+                  g_posLockManager.UnlockPosition();
+               }
+               else if(closedPositionID == g_currentCycle.PositionIdentifier && g_currentCycle.PositionIdentifier > 0)
                {
                   g_posLockManager.UnlockPosition();
                }
@@ -414,7 +521,7 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
                g_currentCycle.PositionIdentifier = 0;
                g_currentCycle.IsActive = false;
                
-               // If in IN_POSITION state and closed by TP, handle cycle end
+               // Handle TP close: record profit and move to re-entry
                if(closeReason == "TP" && g_currentState == STATE_IN_POSITION)
                {
                   g_recoveryManager.RecordTPProfit(netProfit, volume);
@@ -437,34 +544,48 @@ void OnTradeTransaction(const MqlTradeTransaction &trans,
 }
 
 //+------------------------------------------------------------------+
-//| Determine close reason from deal                                  |
+//| Determine close reason from deal and current state                |
+//| Uses state context since broker comments are unreliable           |
 //+------------------------------------------------------------------+
-string DetermineCloseReason(ulong dealTicket)
+string DetermineCloseReason(ulong dealTicket, ENUM_ZONE_STATE currentState)
 {
-   string comment = HistoryDealGetString(dealTicket, DEAL_COMMENT);
+   // First check state context - this is most reliable for EA-initiated closes
+   if(currentState == STATE_DAY_END_CLOSE || currentState == STATE_NEWS_FORCED_CLOSE)
+   {
+      if(currentState == STATE_NEWS_FORCED_CLOSE) return "NEWS_CLOSE";
+      return "DAY_END";
+   }
+   if(currentState == STATE_RISK_HALT)
+      return "RISK_HALT";
+   if(currentState == STATE_SL_CLOSE_PENDING)
+      return "SL";
    
+   // Check deal comment as secondary indicator
+   string comment = HistoryDealGetString(dealTicket, DEAL_COMMENT);
    if(StringFind(comment, "TP") >= 0) return "TP";
    if(StringFind(comment, "SL") >= 0) return "SL";
-   if(StringFind(comment, "DAY_END") >= 0) return "DAY_END";
-   if(StringFind(comment, "NEWS_CLOSE") >= 0) return "NEWS_CLOSE";
-   if(StringFind(comment, "RISK") >= 0) return "RISK_HALT";
-   if(StringFind(comment, "REVERSAL") >= 0) return "REVERSAL";
    
-   // Check if TP or SL was hit based on price
+   // Check if TP was hit based on price comparison
    if(g_currentCycle.TPPrice > 0)
    {
       double closePrice = HistoryDealGetDouble(dealTicket, DEAL_PRICE);
+      double point = GetPointSize(g_symbol);
+      
       if(g_currentCycle.PositionDir == DIR_BUY)
       {
-         if(closePrice >= g_currentCycle.TPPrice - GetPointSize(g_symbol))
+         if(closePrice >= g_currentCycle.TPPrice - point)
             return "TP";
       }
       else if(g_currentCycle.PositionDir == DIR_SELL)
       {
-         if(closePrice <= g_currentCycle.TPPrice + GetPointSize(g_symbol))
+         if(closePrice <= g_currentCycle.TPPrice + point)
             return "TP";
       }
    }
+   
+   // If in IN_POSITION and position closed externally (not by us)
+   if(currentState == STATE_IN_POSITION)
+      return "EXTERNAL_CLOSE";
    
    return "UNKNOWN";
 }
@@ -490,6 +611,7 @@ void OnNewDay(datetime newDay)
       g_posLockManager.UnlockPosition();
       
       g_statsManager.RecordTrade(pnl, lot, false, false, true, false);
+      g_tradeStatsRecorded = true;  // Prevent double-counting in OnTradeTransaction
       
       TradeRecord record;
       record.TradeID     = ticket;
@@ -740,6 +862,7 @@ void ProcessSLClosePending()
          g_recoveryManager.RecordSLLoss(MathAbs(pnl), g_currentCycle.CurrentLot);
          
          g_statsManager.RecordTrade(pnl, g_currentCycle.CurrentLot, false, true, false, false);
+         g_tradeStatsRecorded = true;  // Prevent double-counting in OnTradeTransaction
          
          // Log the trade
          TradeRecord record;
@@ -1053,6 +1176,7 @@ void ForceCloseAllPositions(string reason)
          
          g_statsManager.RecordTrade(pnl, lot, false, false,
             reason == "DAY_END", reason == "NEWS_CLOSE");
+         g_tradeStatsRecorded = true;  // Prevent double-counting in OnTradeTransaction
          
          // Log
          TradeRecord record;

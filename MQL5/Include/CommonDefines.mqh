@@ -347,22 +347,48 @@ datetime GetNextDayStart(datetime dt)
 //+------------------------------------------------------------------+
 bool IsMarketOpen(string symbol)
 {
-   datetime from, to;
-   if(!SymbolInfoSessionTrade(symbol, 0, TimeDayOfWeek(TimeCurrent()), from, to))
-      return false;
-   
    datetime now = TimeCurrent();
-   MqlDateTime mdt;
-   TimeToStruct(now, mdt);
-   int todaySeconds = mdt.hour * 3600 + mdt.min * 60 + mdt.sec;
+   int dayOfWeek = TimeDayOfWeek(now);
    
-   MqlDateTime fromDT, toDT;
-   TimeToStruct(from, fromDT);
-   TimeToStruct(to, toDT);
-   int fromSeconds = fromDT.hour * 3600 + fromDT.min * 60 + fromDT.sec;
-   int toSeconds   = toDT.hour * 3600 + toDT.min * 60 + toDT.sec;
+   // Try to find any trade session for today
+   // There may be multiple sessions per day (e.g. Asian + European)
+   for(uint sessionIndex = 0; sessionIndex < 10; sessionIndex++)
+   {
+      datetime from = 0, to = 0;
+      if(!SymbolInfoSessionTrade(symbol, (ENUM_SESSION_DAY_OF_WEEK)dayOfWeek, sessionIndex, from, to))
+         break;  // No more sessions
+      
+      // Convert session times to seconds-since-midnight
+      MqlDateTime fromDT, toDT;
+      TimeToStruct(from, fromDT);
+      TimeToStruct(to, toDT);
+      int fromSeconds = fromDT.hour * 3600 + fromDT.min * 60 + fromDT.sec;
+      int toSeconds   = toDT.hour * 3600 + toDT.min * 60 + toDT.sec;
+      
+      MqlDateTime mdt;
+      TimeToStruct(now, mdt);
+      int currentSeconds = mdt.hour * 3600 + mdt.min * 60 + mdt.sec;
+      
+      // Handle sessions that span midnight (toSeconds < fromSeconds)
+      if(toSeconds > fromSeconds)
+      {
+         if(currentSeconds >= fromSeconds && currentSeconds <= toSeconds)
+            return true;
+      }
+      else if(toSeconds < fromSeconds)
+      {
+         // Spans midnight: e.g. 23:00 to 01:00
+         if(currentSeconds >= fromSeconds || currentSeconds <= toSeconds)
+            return true;
+      }
+   }
    
-   return (todaySeconds >= fromSeconds && todaySeconds <= toSeconds);
+   // If no sessions found for today, check if it's a weekday (market might still be open)
+   // Some brokers don't define sessions for all days
+   if(dayOfWeek >= 1 && dayOfWeek <= 5)
+      return true;  // Assume open on weekdays if no session info available
+   
+   return false;
 }
 
 //+------------------------------------------------------------------+
