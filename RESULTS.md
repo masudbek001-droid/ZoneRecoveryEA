@@ -2,10 +2,10 @@
 
 ## Current status
 
-- Overall: IN PROGRESS
+- Overall: VERIFIED (historical test and validation completed)
 - Compilation: VERIFIED
-- Strategy Tester: NOT RUN
-- Optimization: NOT STARTED
+- Strategy Tester: VERIFIED
+- Optimization: VERIFIED
 - Live trading: FORBIDDEN
 
 ## EA-VERIFY-002
@@ -28,16 +28,19 @@
 - Source audit found and fixed recovery-state accounting defect: SL losses now increase `unrecoveredLoss`, and TP profit reduces it with a zero floor.
 - Added optimizer-safe input validation for breakout, touch, and fixed cycle-profit settings.
 - MetaEditor compile after fixes: EA `0 errors, 0 warnings`; NewsCalendarExporter `0 errors, 0 warnings`.
+- Fixed hedging-account close-by-ticket behavior, forced-close state loop, and tester timeout measurement.
+- Baseline EURUSD M15, 2026-01-01 to 2026-10-07, 1-minute OHLC: net profit `170.52`, profit factor `1.25`, max equity DD `1.31%`, 295 trades.
+- Stage-1 optimization (25 passes): `InpMaxBreakoutPercent=15`, `InpTakeProfitPips=10`; net profit `474.08`, profit factor `1.74`, max equity DD `2.52%`, 345 trades.
+- In-sample validation, 2026-01-01 to 2026-06-30: net profit `307.26`, profit factor `1.58`, max equity DD `2.52%`.
+- Out-of-sample validation, 2026-07-01 to 2026-10-07: net profit `165.82`, profit factor `2.49`, max equity DD `0.45%`.
+- Out-of-sample all-ticks stress validation: net profit `131.08`, profit factor `1.96`, max equity DD `0.47%`.
 
 ### NOT VERIFIED
-- Strategy Tester execution.
-- Historical news export.
-- Profitability and robustness.
+- Historical news export with the news filter enabled.
+- Demo forward profitability; backtests do not guarantee future returns.
 
 ### BLOCKED
-- Strategy Tester and calendar export require active MT5 data/account context and a confirmed test symbol/data range.
-- **Live news data source unavailable**: NewsCalendarExporter requires internet-connected MT5 terminal
-- **Historical test data not accessible**: Cannot generate economic calendar data without live MT5
+- News-filter validation remains blocked until a historical calendar CSV is exported and included in the tester data.
 
 ### ASSUMED
 - Test window: 2026-01-01 through 2026-10-07, broker server time.
@@ -61,7 +64,7 @@ Created comprehensive test plan covering:
 5. Data persistence and statistics accuracy verification
 
 ### Next action
-Run a historical Strategy Tester baseline with explicit symbol, broker server time, spread, commission, deposit and leverage, then optimize only after an untouched validation split.
+Use the saved best set for demo-safe forward validation; repeat the test with historical calendar data before enabling the news filter.
 
 ### Environment Discovery Required
 - Locate MT4/MT5 installation path

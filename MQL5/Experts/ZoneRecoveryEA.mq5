@@ -188,7 +188,7 @@ int OnInit()
       Print("ERROR: MaxBreakoutPercent must be > 0 and <= 100");
       return INIT_PARAMETERS_INCORRECT;
    }
-   if(InpBreakoutMode == BREAKOUT_MODE_FIXED && InpMaxBreakoutPips <= 0)
+   if(InpBreakoutMode == BREAKOUT_MODE_FIXED_PIPS && InpMaxBreakoutPips <= 0)
    {
       Print("ERROR: MaxBreakoutPips must be > 0 in FIXED breakout mode");
       return INIT_PARAMETERS_INCORRECT;
@@ -1121,6 +1121,13 @@ bool OpenTrade(ENUM_SIGNAL_TYPE signal, double lot)
 //+------------------------------------------------------------------+
 bool CheckForcedClose()
 {
+   // Once a close state has been scheduled, let ProcessState execute its
+   // handler. Re-evaluating the trigger here on every tick would keep
+   // returning early and could leave the EA in an endless forced-close loop.
+   if(g_currentState == STATE_NEWS_FORCED_CLOSE ||
+      g_currentState == STATE_DAY_END_CLOSE)
+      return false;
+
    // Priority 1: News forced close
    if(g_newsFilter.IsTodayBlocked() && g_currentState == STATE_IN_POSITION)
    {

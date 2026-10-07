@@ -43,8 +43,10 @@ private:
    //+------------------------------------------------------------------+
    bool WaitForPositionOpen(ulong &positionTicket, int timeoutMs = 5000)
    {
-      datetime startTime = TimeCurrent();
-      while((TimeCurrent() - startTime) * 1000 < timeoutMs)
+      if((bool)MQLInfoInteger(MQL_TESTER))
+         timeoutMs = 500;
+      uint startTick = GetTickCount();
+      while((uint)(GetTickCount() - startTick) < (uint)timeoutMs)
       {
          // Check for positions with our magic number
          for(int i = PositionsTotal() - 1; i >= 0; i--)
@@ -57,7 +59,7 @@ private:
             positionTicket = ticket;
             return true;
          }
-         Sleep(100);
+         Sleep((bool)MQLInfoInteger(MQL_TESTER) ? 10 : 100);
       }
       return false;
    }
@@ -67,8 +69,10 @@ private:
    //+------------------------------------------------------------------+
    bool WaitForPositionClose(ulong positionTicket, int timeoutMs = 10000)
    {
-      datetime startTime = TimeCurrent();
-      while((TimeCurrent() - startTime) * 1000 < timeoutMs)
+      if((bool)MQLInfoInteger(MQL_TESTER))
+         timeoutMs = 500;
+      uint startTick = GetTickCount();
+      while((uint)(GetTickCount() - startTick) < (uint)timeoutMs)
       {
          bool found = false;
          for(int i = PositionsTotal() - 1; i >= 0; i--)
@@ -81,7 +85,7 @@ private:
             }
          }
          if(!found) return true;  // Position closed
-         Sleep(100);
+         Sleep((bool)MQLInfoInteger(MQL_TESTER) ? 10 : 100);
       }
       return false;
    }
@@ -193,19 +197,11 @@ public:
          return false;
       }
       
-      double volume = PositionGetDouble(POSITION_VOLUME);
-      long posType = PositionGetInteger(POSITION_TYPE);
-      
-      bool result = false;
-      
-      if(posType == POSITION_TYPE_BUY)
-      {
-         result = m_trade.Sell(volume, m_symbol, 0, 0, 0, "ZRE_CLOSE");
-      }
-      else if(posType == POSITION_TYPE_SELL)
-      {
-         result = m_trade.Buy(volume, m_symbol, 0, 0, 0, "ZRE_CLOSE");
-      }
+      // PositionClose(ticket) is required on hedging accounts. Sending an
+      // opposite market order by symbol can open a new hedge instead of
+      // closing the requested position, causing runaway duplicate entries.
+      bool result = m_trade.PositionClose(positionTicket,
+                                           (ulong)m_maxSlippagePoints);
       
       if(!result)
       {
