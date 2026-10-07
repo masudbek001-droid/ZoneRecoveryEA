@@ -1,0 +1,35 @@
+# MetaTrader 5 build artifacts
+*.ex5
+*.exe
+*.dll
+
+# MQL5 compiled files
+*.ex5
+*.exe
+
+# News calendar data (generated)
+NewsCalendar.csv
+NewsCalendar_manifest.txt
+
+# EA state files (generated)
+ZoneRecoveryEA_State.bin
+ZoneRecoveryEA_Trades.csv
+ZoneRecoveryEA_Cycles.csv
+ZoneRecoveryEA_Stats.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
