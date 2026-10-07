@@ -10,3 +10,4 @@
 - Fixed hedging-account close-by-ticket behavior, forced-close state loop, and tester timeout measurement.
 - Recompiled EA and exporter with 0 errors and 0 warnings.
 - Completed baseline, 25-pass optimization, IS/OOS validation, and all-ticks OOS stress validation.
+- Completed stage-2 81-pass recovery/re-entry optimization and final all-ticks OOS validation.

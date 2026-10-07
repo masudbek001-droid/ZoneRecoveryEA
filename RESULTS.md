@@ -31,9 +31,11 @@
 - Fixed hedging-account close-by-ticket behavior, forced-close state loop, and tester timeout measurement.
 - Baseline EURUSD M15, 2026-01-01 to 2026-10-07, 1-minute OHLC: net profit `170.52`, profit factor `1.25`, max equity DD `1.31%`, 295 trades.
 - Stage-1 optimization (25 passes): `InpMaxBreakoutPercent=15`, `InpTakeProfitPips=10`; net profit `474.08`, profit factor `1.74`, max equity DD `2.52%`, 345 trades.
+- Stage-2 optimization (81 passes) added re-entry/recovery variables. Selected robust tie: `TouchTolerancePips=3`, `MaxTouchOvershootPips=10`, `FixedCycleProfit=15`, `RecoveryOnlyFromTrade=3`.
 - In-sample validation, 2026-01-01 to 2026-06-30: net profit `307.26`, profit factor `1.58`, max equity DD `2.52%`.
 - Out-of-sample validation, 2026-07-01 to 2026-10-07: net profit `165.82`, profit factor `2.49`, max equity DD `0.45%`.
 - Out-of-sample all-ticks stress validation: net profit `131.08`, profit factor `1.96`, max equity DD `0.47%`.
+- Final stage-2 out-of-sample all-ticks validation, 2026-07-01 to 2026-10-07: net profit `199.03`, profit factor `2.13`, recovery factor `1.63`, max equity DD `0.69%`.
 
 ### NOT VERIFIED
 - Historical news export with the news filter enabled.
